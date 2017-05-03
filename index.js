@@ -17,14 +17,6 @@ app.get('/', function(req, res) {
 
 var sockets = {};
 
-function stopStreaming() {
-  if (Object.keys(sockets).length == 0) {
-    app.set('watchingFile', false);
-    if (proc) proc.kill();
-    fs.unwatchFile(__dirname + '/stream/image_stream.jpg');
-  }
-}
-
 io.on('connection', function(socket) {
 
   sockets[socket.id] = socket;
@@ -34,7 +26,11 @@ io.on('connection', function(socket) {
     delete sockets[socket.id];
 
     // no more sockets, kill the stream
-    stopStreaming();
+    if (Object.keys(sockets).length == 0) {
+      app.set('watchingFile', false);
+      if (proc) proc.kill();
+      fs.unwatchFile(__dirname + '/stream/image_stream.jpg');
+    }
   });
 
   socket.on('start-stream', function() {
@@ -46,6 +42,14 @@ io.on('connection', function(socket) {
 http.listen(3000, function() {
   console.log('listening on *:3000');
 });
+
+function stopStreaming() {
+  if (Object.keys(sockets).length == 0) {
+    app.set('watchingFile', false);
+    if (proc) proc.kill();
+    fs.unwatchFile(__dirname + '/stream/image_stream.jpg');
+  }
+}
 
 function raspi(){
   var args = ["-w", "640", "-h", "480", "-o", __dirname + "/stream/image_stream.jpg", "-t", "999999999", "-tl", "100"];
