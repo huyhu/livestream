@@ -48,7 +48,7 @@ http.listen(3000, function() {
 });
 
 function raspi(){
-  var args = ["-w", "640", "-h", "480", "-o", "-q", "50", __dirname + "/stream/image_stream.jpg", "-t", "999999999", "-tl", "100"];
+  var args = ["-w", "640", "-h", "480", "-q", "50", "-o", __dirname + "/stream/image_stream.jpg", "-t", "999999999", "-tl", "100"];
 
   proc = spawn('raspistill', args);
 
