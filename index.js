@@ -55,6 +55,9 @@ function raspi(){
   var args = ["-n", "-w", "640", "-h", "480", "-q", "75", "-o", __dirname + "/stream/image_stream.jpg", "-t", "9999999", "-tl", "250", "th", "0:0:0"];
   proc = spawn('raspistill', args);
 
+  proc.on('close', (code, signal) => {
+    console.log('child process terminated due to receipt of signal ${signal}');
+  });
   //proc.on('close', (code) => {
   // raspi();
   //});
