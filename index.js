@@ -26,50 +26,51 @@ function stopStreaming() {
 }
  
 io.on('connection', function(socket) {
- 
+
   sockets[socket.id] = socket;
   console.log("Total clients connected : ", Object.keys(sockets).length);
- 
-  socket.on('disconnect', function() {
+
+  socket.on('disconnect', function () {
     delete sockets[socket.id];
- 
+
     // no more sockets, kill the stream
     stopStreaming();
- 
-  socket.on('start-stream', function() {
-    startStreaming(io);
+
+    socket.on('start-stream', function () {
+      startStreaming(io);
+    });
+
   });
- 
-});
- 
-http.listen(3000, function() {
-  console.log('listening on *:3000');
-});
 
-function raspi(){
- var args = ["-w", "640", "-h", "480", "-o", "-q", "50", __dirname + "/stream/image_stream.jpg", "-t", "999999999", "-tl", "100"];
+  http.listen(3000, function () {
+    console.log('listening on *:3000');
+  });
 
-  proc = spawn('raspistill', args);
+  function raspi() {
+    var args = ["-w", "640", "-h", "480", "-o", "-q", "50", __dirname + "/stream/image_stream.jpg", "-t", "999999999", "-tl", "100"];
 
-  //proc.on('close', (code) => {
-   // raspi();
-  //});
-}
- 
-function startStreaming(io) {
- 
-  if (app.get('watchingFile')) {
-    io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + (Math.random() * 100000));
-    return;
+    proc = spawn('raspistill', args);
+
+    //proc.on('close', (code) => {
+    // raspi();
+    //});
   }
- 
-  raspi();
- 
-  console.log('Watching for changes...');
- 
-  app.set('watchingFile', true);
- 
-  fs.watchFile(__dirname + '/stream/image_stream.jpg', function(current, previous) {
-    io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + (Math.random() * 100000));
-  }) 
+
+  function startStreaming(io) {
+
+    if (app.get('watchingFile')) {
+      io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + (Math.random() * 100000));
+      return;
+    }
+
+    raspi();
+
+    console.log('Watching for changes...');
+
+    app.set('watchingFile', true);
+
+    fs.watchFile(__dirname + '/stream/image_stream.jpg', function (current, previous) {
+      io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + (Math.random() * 100000));
+    })
+  }
 }
