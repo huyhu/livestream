@@ -54,6 +54,7 @@ function raspi(){
 }
 
 function restart(){
+  console.log('restarting');
   stopStreaming();
   startStreaming(io);
 }
@@ -65,7 +66,7 @@ function startStreaming(io) {
     return;
   }
 
-  setInterval(restart, 1000 * 60 * 5);
+  setInterval(restart, 1000);
 
   console.log('Watching for changes...');
 
