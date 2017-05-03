@@ -52,7 +52,7 @@ function stopStreaming() {
 }
 
 function raspi(){
-  var args = ["-w", "640", "-h", "480", "-q", "10", "-o", __dirname + "/stream/image_stream.jpg", "-t", "999999999", "-tl", "100"];
+  var args = ["-w", "640", "-h", "480", "-q", "50", "-o", __dirname + "/stream/image_stream.jpg", "-t", "999999999", "-tl", "500"];
 
   proc = spawn('raspistill', args);
 
