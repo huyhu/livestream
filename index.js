@@ -7,6 +7,7 @@ var path = require('path');
 
 var spawn = require('child_process').spawn;
 var proc;
+var timerstarted;
 
 app.use('/', express.static(path.join(__dirname, 'stream')));
 
@@ -55,7 +56,7 @@ function raspi(){
 
 function restart(){
   if (Object.keys(sockets).length == 0) return;
-
+  timerstarted = true;
   console.log("restarting..");
   if (proc) proc.kill();
   raspi();
@@ -69,7 +70,8 @@ function startStreaming(io) {
   }
 
   raspi();
-  setInterval(restart, 1000);
+  if(!timerstarted)
+    setInterval(restart, 1000 * 60 * 3);
 
   console.log('Watching for changes...');
 
