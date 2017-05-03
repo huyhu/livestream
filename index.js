@@ -54,7 +54,9 @@ function raspi(){
 }
 
 function restart(){
-  console.log('restarting');
+  if (Object.keys(sockets).length == 0) return;
+
+  console.log("restarting..");
   if (proc) proc.kill();
   raspi();
 }
