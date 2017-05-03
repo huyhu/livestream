@@ -65,7 +65,7 @@ function restart(){
 function startStreaming(io) {
 
   if (app.get('watchingFile')) {
-    io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + (Math.random() * 100000) + Object.keys(sockets).length);
+    io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + (Math.random() * 100000) + "" + Object.keys(sockets).length);
     return;
   }
 
@@ -78,6 +78,6 @@ function startStreaming(io) {
   app.set('watchingFile', true);
 
   fs.watchFile(__dirname + '/stream/image_stream.jpg', function(current, previous) {
-    io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + (Math.random() * 100000) + Object.keys(sockets).length);
+    io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + (Math.random() * 100000) + "" + Object.keys(sockets).length);
   })
 }
