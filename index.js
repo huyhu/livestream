@@ -73,4 +73,4 @@ io.on('connection', function(socket) {
       io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + (Math.random() * 100000));
     })
   }
-}
+});
