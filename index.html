@@ -28,6 +28,7 @@
   var socket = io();
   socket.on('liveStream', function(url) {
     $('#stream').attr('src', url);
+    $('#viewer').html('Viewer Count: ' + url.slice(-1));
     $('.start').hide();
   });
  
@@ -44,7 +45,11 @@
   <hr>
  
   <button type="button" id="" class="btn btn-info start" onclick="startStream()">Start Camera</button>
- 
+
+    <div class="row">
+      <p id="viewer"></p>
+    </div>
+
   <div class="row">
     <img src="" id="stream">
   </div>
