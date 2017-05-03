@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.15.2",
+    "raspberry-pi-mjpeg-server": "0.0.8",
     "socket.io": "^1.7.3"
   }
 }
