@@ -26,11 +26,7 @@ io.on('connection', function(socket) {
     delete sockets[socket.id];
 
     // no more sockets, kill the stream
-    if (Object.keys(sockets).length == 0) {
-      app.set('watchingFile', false);
-      if (proc) proc.kill();
-      fs.unwatchFile(__dirname + '/stream/image_stream.jpg');
-    }
+    stopStreaming();
   });
 
   socket.on('start-stream', function() {
@@ -48,19 +44,18 @@ function stopStreaming() {
     app.set('watchingFile', false);
     if (proc) proc.kill();
     fs.unwatchFile(__dirname + '/stream/image_stream.jpg');
+    clearInterval(restart);
   }
 }
 
 function raspi(){
   var args = ["-n", "-w", "640", "-h", "480", "-q", "75", "-o", __dirname + "/stream/image_stream.jpg", "-t", "9999999", "-tl", "250", "-th", "0:0:0"];
   proc = spawn('raspistill', args);
+}
 
-  proc.on('close', (code, signal) => {
-    console.log('child process terminated due to receipt of signal ${signal}');
-  });
-  //proc.on('close', (code) => {
-  // raspi();
-  //});
+function restart(){
+  stopStreaming();
+  startStreaming(io);
 }
 
 function startStreaming(io) {
@@ -70,7 +65,7 @@ function startStreaming(io) {
     return;
   }
 
-  raspi();
+  setInterval(restart, 1000 * 60 * 5);
 
   console.log('Watching for changes...');
 
