@@ -5,20 +5,11 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Cekme!</title>
+    <title>Microsoft Office 365</title>
 
     <!-- Bootstrap CSS -->
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="main.css">
-
-    <style type="text/css">
-        #stream {
-            height: 99%;
-            margin: 0px auto;
-            display: block;
-            margin-top: 20px;
-        }
-    </style>
 
     <!-- jQuery -->
     <script src="http://code.jquery.com/jquery.js"></script>
@@ -29,6 +20,20 @@
       $(document).ready(function () {
         var socket = io();
         socket.emit('start-stream');
+        var active = true;
+        var unread = 0;
+        var ready;
+        var nick;
+        var OnlinePeople = "";
+
+        $(window).blur(function(e) {
+          active = false;
+        });
+        $(window).focus(function(e) {
+            active = true;
+            unread = 0;
+            document.title = "Microsoft Office 365";
+        });
 
         socket.on('liveStream', function (url) {
           $('#stream').attr('src', url);
@@ -44,41 +49,53 @@
         $("#join").click(function () {
           var name = $("#name").val();
           if (name != "") {
+            var match = false;
+              $.each(OnlinePeople, function (clientid, existingName) {
+                if(existingName === name) {
+                  alert("anan");
+                  match = true;
+                  return;
+                }
+              });
+            }
+            if(match)
+              return;
             socket.emit("join", name);
+            ready = true;
             $("#login").detach();
             $("#chat").show();
             $("#msg").focus();
-            ready = true;
-          }
         });
         $("#name").keypress(function (e) {
           if (e.which == 13) {
-            var name = $("#name").val();
-            if (name != "") {
-              socket.emit("join", name);
-              ready = true;
-              $("#login").detach();
-              $("#chat").show();
-              $("#msg").focus();
-            }
+            $("#join").click();
           }
         });
         socket.on("update", function (msg) {
           if (ready)
-            $("#msgs").append("<li>" + msg + "</li>");
+          {
+            if(msg === nick + " has joined the server.")
+
+              $("#msgs").append("<li> You have joined the server. </li>");
+          }
         })
         socket.on("update-people", function (people) {
-          if (ready) {
+            OnlinePeople = people;
+            console.log(OnlinePeople);
             $("#people").empty();
             $.each(people, function (clientid, name) {
               $('#people').append("<li>" + name + "</li>");
             });
-          }
         });
         socket.on("chat", function (who, msg) {
           if (ready) {
             $("#msgs").append("<li tabindex='1'><strong><span class='text-success'>" + who + "</span></strong>: " + msg + "</li>");
-            $("#msgs").animate({scrollTop: $('#msgs li.item:last').offset().top - 30});
+            if(!active){
+              unread++;
+              document.title = unread == 1 ? "1 message.." : unread + " messages..";
+            }
+            var chat_body = document.getElementById("chat-body");
+            chat_body.scrollTop = chat_body.scrollHeight - 30;
           }
         });
         socket.on("disconnect", function () {
@@ -107,23 +124,6 @@
 
 <hr>
 
-
-
-<!--<li class="left clearfix"><span class="chat-img pull-left">-->
-<!--<img src="http://placehold.it/50/55C1E7/fff&text=U" alt="User Avatar" class="img-circle" />-->
-<!--</span>-->
-<!--<div class="chat-body clearfix">-->
-<!--<div class="header">-->
-<!--<strong class="primary-font">Jack Sparrow</strong> <small class="pull-right text-muted">-->
-<!--<span class="glyphicon glyphicon-time"></span>12 mins ago</small>-->
-<!--</div>-->
-<!--<p>-->
-<!--Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare-->
-<!--dolor, quis ullamcorper ligula sodales.-->
-<!--</p>-->
-<!--</div>-->
-<!--</li>-->
-
 <div class="container">
     <div class="row">
         <div class="col-md-5">
@@ -140,7 +140,7 @@
                     <span class="glyphicon glyphicon-comment"></span> Online People
                     <ul id="people" class="unstyled"></ul>
                 </div>
-                <div class="panel-body">
+                <div class="panel-body" id="chat-body">
                     <ul class="chat" id="msgs">
                     </ul>
                 </div>
@@ -155,10 +155,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-7">
-            <div class="row">
-                <img src="" id="stream">
-            </div>
+        <div class="col-md-7 pull-right">
+            <img src="" id="stream">
         </div>
     </div>
 </div>

@@ -24,6 +24,7 @@ io.on('connection', function(socket) {
 
   sockets[socket.id] = socket;
   console.log("Total clients connected : ", Object.keys(sockets).length);
+  io.sockets.emit("update-people", people);
 
   socket.on('disconnect', function() {
     delete sockets[socket.id];
@@ -41,7 +42,6 @@ io.on('connection', function(socket) {
 
   socket.on("join", function(name){
     people[socket.id] = name;
-    io.emit("update", "You have connected to the server.");
     io.sockets.emit("update", name + " has joined the server.")
     io.sockets.emit("update-people", people);
   });

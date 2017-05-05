@@ -1,3 +1,9 @@
+#stream {
+    height: 99%;
+    margin: 0;
+    display: block;
+}
+
 .chat
 {
     list-style: none;
@@ -37,7 +43,7 @@
 .panel-body
 {
     overflow-y: scroll;
-    height: 250px;
+    height: 350px;
 }
 
 ::-webkit-scrollbar-track
