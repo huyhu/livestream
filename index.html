@@ -26,18 +26,19 @@
     <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
+      var socket = io();
+
+      function startStream() {
+        socket.emit('start-stream');
+        $('#start').hide();
+      }
+
       $(document).ready(function () {
-        var socket = io();
         socket.on('liveStream', function (url) {
           $('#stream').attr('src', url);
           $('#viewer').html('Viewer Count: ' + url.slice(-1));
           $('.start').hide();
         });
-
-        function startStream() {
-          socket.emit('start-stream');
-          $('#start').hide();
-        }
 
         $("#chat").hide();
         $("#name").focus();
