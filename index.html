@@ -48,7 +48,7 @@
         });
         $("#join").click(function () {
           var name = $("#name").val();
-          if (name != "") {
+          if (name !== "") {
             var match = false;
               $.each(OnlinePeople, function (clientid, existingName) {
                 if(existingName === name) {
@@ -57,7 +57,6 @@
                   return;
                 }
               });
-            }
             if(match)
               return;
             socket.emit("join", name);
@@ -65,6 +64,7 @@
             $("#login").detach();
             $("#chat").show();
             $("#msg").focus();
+          }
         });
         $("#name").keypress(function (e) {
           if (e.which == 13) {
