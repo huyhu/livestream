@@ -1,59 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
- 
+
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cekme!</title>
- 
-  <!-- Bootstrap CSS -->
-  <link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
- 
-  <style type="text/css">
-  #stream {
-    height: 99%;
-    margin: 0px auto;
-    display: block;
-    margin-top: 20px;
-  }
-  </style>
- 
-  <!-- jQuery -->
-  <script src="http://code.jquery.com/jquery.js"></script>
-  <!-- Bootstrap JavaScript -->
-  <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-  var socket = io();
-  socket.on('liveStream', function(url) {
-    $('#stream').attr('src', url);
-    $('#viewer').html('Viewer Count: ' + url.slice(-1));
-    $('.start').hide();
-  });
- 
-  function startStream() {
-    socket.emit('start-stream');
-    $('.start').hide();
-  }
-  </script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cekme!</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="main.css">
+
+    <style type="text/css">
+        #stream {
+            height: 99%;
+            margin: 0px auto;
+            display: block;
+            margin-top: 20px;
+        }
+    </style>
+
+    <!-- jQuery -->
+    <script src="http://code.jquery.com/jquery.js"></script>
+    <!-- Bootstrap JavaScript -->
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      $(document).ready(function () {
+        var socket = io();
+        socket.on('liveStream', function (url) {
+          $('#stream').attr('src', url);
+          $('#viewer').html('Viewer Count: ' + url.slice(-1));
+          $('.start').hide();
+        });
+
+        function startStream() {
+          socket.emit('start-stream');
+          $('#start').hide();
+        }
+
+        $("#chat").hide();
+        $("#name").focus();
+        $("form").submit(function (event) {
+          event.preventDefault();
+        });
+        $("#join").click(function () {
+          var name = $("#name").val();
+          if (name != "") {
+            socket.emit("join", name);
+            $("#login").detach();
+            $("#chat").show();
+            $("#msg").focus();
+            ready = true;
+          }
+        });
+        $("#name").keypress(function (e) {
+          if (e.which == 13) {
+            var name = $("#name").val();
+            if (name != "") {
+              socket.emit("join", name);
+              ready = true;
+              $("#login").detach();
+              $("#chat").show();
+              $("#msg").focus();
+            }
+          }
+        });
+        socket.on("update", function (msg) {
+          if (ready)
+            $("#msgs").append("<li>" + msg + "</li>");
+        })
+        socket.on("update-people", function (people) {
+          if (ready) {
+            $("#people").empty();
+            $.each(people, function (clientid, name) {
+              $('#people').append("<li>" + name + "</li>");
+            });
+          }
+        });
+        socket.on("chat", function (who, msg) {
+          if (ready) {
+            $("#msgs").append("<li tabindex='1'><strong><span class='text-success'>" + who + "</span></strong>: " + msg + "</li>");
+            $("#msgs").animate({scrollTop: $('#msgs li.item:last').offset().top - 30});
+          }
+        });
+        socket.on("disconnect", function () {
+          $("#msgs").append("<li><strong><span class='text-warning'>The server is not available</span></strong></li>");
+          $("#msg").attr("disabled", "disabled");
+          $("#send").attr("disabled", "disabled");
+        });
+        $("#send").click(function () {
+          var msg = $("#msg").val();
+          socket.emit("send", msg);
+          $("#msg").val("");
+        });
+        $("#msg").keypress(function (e) {
+          if (e.which == 13) {
+            var msg = $("#msg").val();
+            socket.emit("send", msg);
+            $("#msg").val("");
+          }
+        });
+      });
+    </script>
 </head>
- 
+
 <body class="container">
-    <small>Powered by Huyhu</small>
+<small>Powered by Huyhu</small>
 
-  <hr>
- 
-  <button type="button" id="" class="btn btn-info start" onclick="startStream()">Start Camera</button>
+<hr>
 
-    <div class="row text-center">
-      <strong><p id="viewer"></p></strong>
+
+
+<!--<li class="left clearfix"><span class="chat-img pull-left">-->
+<!--<img src="http://placehold.it/50/55C1E7/fff&text=U" alt="User Avatar" class="img-circle" />-->
+<!--</span>-->
+<!--<div class="chat-body clearfix">-->
+<!--<div class="header">-->
+<!--<strong class="primary-font">Jack Sparrow</strong> <small class="pull-right text-muted">-->
+<!--<span class="glyphicon glyphicon-time"></span>12 mins ago</small>-->
+<!--</div>-->
+<!--<p>-->
+<!--Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare-->
+<!--dolor, quis ullamcorper ligula sodales.-->
+<!--</p>-->
+<!--</div>-->
+<!--</li>-->
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-5">
+            <div class="row">
+                <button type="button" id="start" class="btn btn-info start" onclick="startStream()">Start Camera</button>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="span5 offset2" id="login">
+                    <form class="form-inline">
+                        <input type="text" class="form-control input" placeholder="Your name" id="name">
+                        <input type="button" name="join" id="join" value="Join" class="form-control btn-sm btn-primary">
+                    </form>
+                </div>
+            </div>
+            <div class="panel panel-primary" id="chat">
+                <div class="panel-heading">
+                    <span class="glyphicon glyphicon-comment"></span> Online People
+                    <ul id="people" class="unstyled"></ul>
+                </div>
+                <div class="panel-body">
+                    <ul class="chat" id="msgs">
+                    </ul>
+                </div>
+                <div class="panel-footer">
+                    <div class="input-group">
+                        <input id="msg" type="text" class="form-control input-sm" placeholder="Your message..."/>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default btn-sm" id="send">
+                                Send</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <img src="" id="stream">
+        </div>
     </div>
+</div>
 
-  <div class="row">
-    <img src="" id="stream">
-  </div>
- 
+
 </body>
- 
+
 </html>

@@ -10,6 +10,7 @@ var proc;
 var timerstarted;
 
 app.use('/', express.static(path.join(__dirname, 'stream')));
+app.use('/', express.static(__dirname));
 
 
 app.get('/', function(req, res) {
@@ -17,6 +18,7 @@ app.get('/', function(req, res) {
 });
 
 var sockets = {};
+var people = {};
 
 io.on('connection', function(socket) {
 
@@ -26,12 +28,26 @@ io.on('connection', function(socket) {
   socket.on('disconnect', function() {
     delete sockets[socket.id];
 
+    io.sockets.emit("update", people[socket.id] + " has left the server.");
+    delete people[socket.id];
+    io.sockets.emit("update-people", people);
     // no more sockets, kill the stream
     stopStreaming();
   });
 
   socket.on('start-stream', function() {
     startStreaming(io);
+  });
+
+  socket.on("join", function(name){
+    people[socket.id] = name;
+    io.emit("update", "You have connected to the server.");
+    io.sockets.emit("update", name + " has joined the server.")
+    io.sockets.emit("update-people", people);
+  });
+
+  socket.on("send", function(msg){
+    io.sockets.emit("chat", people[socket.id], msg);
   });
 
 });
@@ -52,6 +68,9 @@ function stopStreaming() {
 function raspi(){
   var args = ["-n", "-w", "640", "-h", "480", "-q", "75", "-o", __dirname + "/stream/image_stream.jpg", "-t", "9999999", "-tl", "250", "-th", "0:0:0"];
   proc = spawn('raspistill', args);
+  proc.on('error', function(err) {
+    console.log('amk ya: ' + err);
+  });
 }
 
 function restart(){
