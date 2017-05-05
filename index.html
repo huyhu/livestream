@@ -26,14 +26,10 @@
     <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      var socket = io();
-
-      function startStream() {
-        socket.emit('start-stream');
-        $('#start').hide();
-      }
-
       $(document).ready(function () {
+        var socket = io();
+        socket.emit('start-stream');
+
         socket.on('liveStream', function (url) {
           $('#stream').attr('src', url);
           $('#viewer').html('Viewer Count: ' + url.slice(-1));
@@ -131,10 +127,6 @@
 <div class="container">
     <div class="row">
         <div class="col-md-5">
-            <div class="row">
-                <button type="button" id="start" class="btn btn-info start" onclick="startStream()">Start Camera</button>
-            </div>
-            <hr>
             <div class="row">
                 <div class="span5 offset2" id="login">
                     <form class="form-inline">
