@@ -59,6 +59,7 @@
               });
             if(match)
               return;
+            nick = name;
             socket.emit("join", name);
             ready = true;
             $("#login").detach();
@@ -72,24 +73,36 @@
           }
         });
         socket.on("update", function (msg) {
-          if (ready)
-          {
+          if (ready) {
             if(msg === nick + " has joined the server.")
-
               $("#msgs").append("<li> You have joined the server. </li>");
+            else
+              $("#msgs").append("<li>" + msg + "</li>");
           }
         })
         socket.on("update-people", function (people) {
             OnlinePeople = people;
-            console.log(OnlinePeople);
             $("#people").empty();
             $.each(people, function (clientid, name) {
               $('#people').append("<li>" + name + "</li>");
             });
         });
+        function urlify(text) {
+          var urlRegex = /(https?:\/\/[^\s]+)/g;
+          return text.replace(urlRegex, function(url) {
+            return '<a target="_blank" href="' + url + '">' + url + '</a>';
+          })
+        }
+        socket.on("history", function (messages) {
+          console.log(messages);
+          $.each(messages, function (ind, obj) {
+            console.log(obj.msg);
+            $("#msgs").append("<li tabindex='1'><strong><span class='text-success'>" + obj.name + "</span></strong>: " + urlify(obj.msg) + "</li>");
+          });
+        });
         socket.on("chat", function (who, msg) {
           if (ready) {
-            $("#msgs").append("<li tabindex='1'><strong><span class='text-success'>" + who + "</span></strong>: " + msg + "</li>");
+            $("#msgs").append("<li tabindex='1'><strong><span class='text-success'>" + who + "</span></strong>: " + urlify(msg) + "</li>");
             if(!active){
               unread++;
               document.title = unread == 1 ? "1 message.." : unread + " messages..";

@@ -12,13 +12,13 @@ var timerstarted;
 app.use('/', express.static(path.join(__dirname, 'stream')));
 app.use('/', express.static(__dirname));
 
-
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
 var sockets = {};
 var people = {};
+var msgs = [];
 
 io.on('connection', function(socket) {
 
@@ -32,7 +32,10 @@ io.on('connection', function(socket) {
     io.sockets.emit("update", people[socket.id] + " has left the server.");
     delete people[socket.id];
     io.sockets.emit("update-people", people);
-    // no more sockets, kill the stream
+    if (Object.keys(sockets).length == 0) {
+      msgs = [];
+    }
+      // no more sockets, kill the stream
     stopStreaming();
   });
 
@@ -44,12 +47,16 @@ io.on('connection', function(socket) {
     people[socket.id] = name;
     io.sockets.emit("update", name + " has joined the server.")
     io.sockets.emit("update-people", people);
+    io.sockets.emit("history", msgs);
   });
 
   socket.on("send", function(msg){
     io.sockets.emit("chat", people[socket.id], msg);
+    var item = {};
+    item.name = people[socket.id];
+    item.msg = msg;
+    msgs.push(item);
   });
-
 });
 
 http.listen(3000, function() {
