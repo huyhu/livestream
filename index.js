@@ -22,8 +22,11 @@ var camera = new RaspiCam({
   mode: "timelapse",
   output: "./timelapse/image_%02d.jpg", 
   encoding: "jpg",
-  timelapse: 500, // take a picture every 3 seconds
-  timeout: 999999999 // take a total of 4 pictures over 12 seconds
+  width: 640,
+  height: 480,
+  timelapse: 1000, // take a picture every 1 seconds
+  timeout: 999999999, // timeout of camera proc
+  q: 25
 });
 
 //listen for the "start" event triggered when the start method has been successfully initiated
