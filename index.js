@@ -4,16 +4,50 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var fs = require('fs');
 var path = require('path');
+var RaspiCam = require("raspicam");
 
 var spawn = require('child_process').spawn;
 var proc;
-var timerstarted;
+var streamStarted = false;
 
 app.use('/', express.static(path.join(__dirname, 'stream')));
+app.use('/', express.static(path.join(__dirname, 'timelapse')));
 app.use('/', express.static(__dirname));
 
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
+});
+
+var camera = new RaspiCam({
+  mode: "timelapse",
+  output: "./timelapse/image_%02d.jpg", 
+  encoding: "jpg",
+  timelapse: 500, // take a picture every 3 seconds
+  timeout: 999999999 // take a total of 4 pictures over 12 seconds
+});
+
+//listen for the "start" event triggered when the start method has been successfully initiated
+camera.on("start", function(){
+  console.log("camera started.");
+  streamStarted = true;
+});
+
+//listen for the "read" event triggered when each new photo/video is saved
+camera.on("read", function(err, timestamp, filename){ 
+  console.log("new image " + filename);
+  io.sockets.emit('liveStream', filename + '?_t=');
+});
+
+//listen for the "stop" event triggered when the stop method was called
+camera.on("stop", function(){
+  console.log("camera stopped");
+  streamStarted = false;
+});
+
+//listen for the process to exit when the timeout has been reached
+camera.on("exit", function(){
+  console.log("camera timeout.");
+  streamStarted = false;
 });
 
 var sockets = {};
@@ -65,10 +99,8 @@ http.listen(80, function() {
 
 function stopStreaming() {
   if (Object.keys(sockets).length == 0) {
-    app.set('watchingFile', false);
     if (proc) proc.kill();
-    fs.unwatchFile(__dirname + '/stream/image_stream.jpg');
-    clearInterval(restart);
+    camera.stop();
   }
 }
 
@@ -80,30 +112,12 @@ function raspi(){
   });
 }
 
-function restart(){
-  if (Object.keys(sockets).length == 0) return;
-  timerstarted = true;
-  console.log("restarting..");
-  if (proc) proc.kill();
-  raspi();
-}
 
 function startStreaming(io) {
-
-  if (app.get('watchingFile')) {
-    io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + (Math.random() * 100000) + "" + Object.keys(sockets).length);
+  if(streamStarted)
     return;
-  }
 
-  raspi();
-  if(!timerstarted)
-    setInterval(restart, 1000 * 60 * 3);
+  console.log('Start streaming..');
 
-  console.log('Watching for changes...');
-
-  app.set('watchingFile', true);
-
-  fs.watchFile(__dirname + '/stream/image_stream.jpg', function(current, previous) {
-    io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + (Math.random() * 100000) + "" + Object.keys(sockets).length);
-  })
+  camera.start();
 }
