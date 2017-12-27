@@ -19,7 +19,7 @@ app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
-rimraf('./timelapse');
+rimraf('./timelapse/*.jpg', function () { console.log('done'); });
 
 var camera = new RaspiCam({
   mode: "timelapse",
