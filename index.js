@@ -89,7 +89,6 @@ io.on('connection', function(socket) {
 });
 
 http.listen(80, function() {
-  rimraf('./timelapse', function () { console.log('done'); });
   console.log('listening on *:80');
 });
 
@@ -113,15 +112,17 @@ function startStreaming(io) {
   if(streamStarted)
     return;
 
-  camera = new RaspiCam({
-    mode: "timelapse",
-    output: "./timelapse/image_%02d.jpg", 
-    encoding: "jpg",
-    width: 640,
-    height: 480,
-    timelapse: 1000, // take a picture every 1 seconds
-    timeout: 999999999, // timeout of camera proc
-    q: 25
+  rimraf('./timelapse', function () { 
+      camera = new RaspiCam({
+      mode: "timelapse",
+      output: "./timelapse/image_%02d.jpg", 
+      encoding: "jpg",
+      width: 640,
+      height: 480,
+      timelapse: 1000, // take a picture every 1 seconds
+      timeout: 999999999, // timeout of camera proc
+      q: 25
+    }); 
   });
 
   console.log('Start streaming..');
