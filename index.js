@@ -19,16 +19,7 @@ app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
-var camera = new RaspiCam({
-  mode: "timelapse",
-  output: "./timelapse/image_%02d.jpg", 
-  encoding: "jpg",
-  width: 640,
-  height: 480,
-  timelapse: 1000, // take a picture every 1 seconds
-  timeout: 999999999, // timeout of camera proc
-  q: 25
-});
+var camera;
 
 //listen for the "start" event triggered when the start method has been successfully initiated
 camera.on("start", function(){
@@ -121,6 +112,17 @@ function raspi(){
 function startStreaming(io) {
   if(streamStarted)
     return;
+
+  camera = new RaspiCam({
+    mode: "timelapse",
+    output: "./timelapse/image_%02d.jpg", 
+    encoding: "jpg",
+    width: 640,
+    height: 480,
+    timelapse: 1000, // take a picture every 1 seconds
+    timeout: 999999999, // timeout of camera proc
+    q: 25
+  });
 
   console.log('Start streaming..');
 
