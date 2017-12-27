@@ -120,9 +120,9 @@ function startStreaming(io) {
         console.log("camera timeout.");
         streamStarted = false;
       });
+
+      console.log('Start streaming..');
+
+      camera.start();
   });
-
-  console.log('Start streaming..');
-
-  camera.start();
 }
