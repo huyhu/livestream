@@ -5,21 +5,17 @@ var io = require('socket.io')(http);
 var fs = require('fs');
 var path = require('path');
 var RaspiCam = require("raspicam");
-var rimraf = require('rimraf');
 
 var spawn = require('child_process').spawn;
 var proc;
 var streamStarted = false;
 
-app.use('/', express.static(path.join(__dirname, 'stream')));
 app.use('/', express.static(path.join(__dirname, 'timelapse')));
 app.use('/', express.static(__dirname));
 
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
-
-rimraf('./timelapse/*.jpg', function () { console.log('done'); });
 
 var camera = new RaspiCam({
   mode: "timelapse",

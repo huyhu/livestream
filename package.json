@@ -10,10 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.15.2",
-    "mkdirp": "^0.5.1",
     "raspberry-pi-mjpeg-server": "0.0.8",
     "raspicam": "^0.2.14",
-    "rimraf": "^2.6.2",
     "socket.io": "^1.7.3"
   }
 }
