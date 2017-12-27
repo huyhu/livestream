@@ -5,6 +5,7 @@ var io = require('socket.io')(http);
 var fs = require('fs');
 var path = require('path');
 var RaspiCam = require("raspicam");
+var rimraf = require('rimraf');
 
 var spawn = require('child_process').spawn;
 var proc;
@@ -119,6 +120,8 @@ function raspi(){
 function startStreaming(io) {
   if(streamStarted)
     return;
+
+  rimraf('./timelapse', function () { console.log('done'); });
 
   console.log('Start streaming..');
 
