@@ -98,6 +98,7 @@ io.on('connection', function(socket) {
 });
 
 http.listen(80, function() {
+  rimraf('./timelapse', function () { console.log('done'); });
   console.log('listening on *:80');
 });
 
@@ -120,8 +121,6 @@ function raspi(){
 function startStreaming(io) {
   if(streamStarted)
     return;
-
-  rimraf('./timelapse', function () { console.log('done'); });
 
   console.log('Start streaming..');
 
