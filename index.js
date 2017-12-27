@@ -19,7 +19,7 @@ app.get('/', function(req, res) {
 
 var camera = new RaspiCam({
   mode: "timelapse",
-  output: "./timelapse/image_%02d.jpg", 
+  output: __dirname + "timelapse/image_%02d.jpg", 
   encoding: "jpg",
   width: 640,
   height: 480,
